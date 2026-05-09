@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Kledij Scanner" />
+  <meta name="theme-color" content="#0d0d0d" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <title>Kledij Scanner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.1/umd/index.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #0d0d0d; color: #f0ede8; font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+
+    #app { min-height: 100vh; display: flex; flex-direction: column; }
+
+    header {
+      padding: env(safe-area-inset-top, 16px) 20px 16px;
+      padding-top: calc(env(safe-area-inset-top, 0px) + 20px);
+      border-bottom: 1px solid #1e1e1e;
+      display: flex; align-items: baseline; gap: 10px;
+    }
+    header h1 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+    header span { font-size: 0.72rem; color: #555; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 400; }
+
+    main { flex: 1; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; max-width: 520px; margin: 0 auto; width: 100%; }
+
+    /* ── Scanner box ── */
+    .scanner-box { background: #141414; border: 1px solid #222; border-radius: 16px; overflow: hidden; }
+    .video-wrap { position: relative; width: 100%; aspect-ratio: 4/3; background: #000; }
+    #preview { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .scan-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+    .frame { width: 200px; height: 100px; position: relative; }
+    .frame::before, .frame::after, .frame i::before, .frame i::after {
+      content: ''; position: absolute; width: 20px; height: 20px;
+      border-color: #c9a96e; border-style: solid;
+    }
+    .frame::before { top:0; left:0; border-width: 2px 0 0 2px; }
+    .frame::after  { top:0; right:0; border-width: 2px 2px 0 0; }
+    .frame i::before { bottom:0; left:0; border-width: 0 0 2px 2px; }
+    .frame i::after  { bottom:0; right:0; border-width: 0 2px 2px 0; }
+    .scanline {
+      position: absolute; left: 8px; right: 8px; height: 1px;
+      background: linear-gradient(90deg, transparent, #c9a96e88, #c9a96e, #c9a96e88, transparent);
+      animation: scan 2s ease-in-out infinite;
+    }
+    @keyframes scan { 0%{top:8%;opacity:0} 15%{opacity:1} 85%{opacity:1} 100%{top:88%;opacity:0} }
+
+    .scanner-footer { padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #c9a96e; animation: pulse 1.5s ease-in-out infinite; flex-shrink: 0; }
+    .dot.off { background: #333; animation: none; }
+    .dot.ok  { background: #5cb85c; animation: none; }
+    .dot.err { background: #e05555; animation: none; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.75)} }
+    .scanner-footer p { font-size: 0.82rem; color: #777; flex: 1; }
+
+    .btn-row { display: flex; gap: 8px; padding: 0 16px 16px; }
+    button {
+      flex: 1; padding: 11px 14px; border-radius: 10px; border: 1px solid #2e2e2e;
+      background: transparent; color: #f0ede8; font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: background .15s, border-color .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:active { background: #1a1a1a; }
+    button.primary { background: #c9a96e; border-color: #c9a96e; color: #0d0d0d; font-weight: 600; }
+    button.primary:active { background: #d4b880; }
+    button:disabled { opacity: .35; pointer-events: none; }
+
+    /* ── Manual input ── */
+    .manual { background: #141414; border: 1px solid #222; border-radius: 16px; padding: 16px; }
+    .manual label { display: block; font-size: 0.7rem; color: #555; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 10px; font-weight: 500; }
+    .input-row { display: flex; gap: 8px; }
+    .input-row input {
+      flex: 1; background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 10px;
+      padding: 10px 14px; color: #f0ede8; font-family: 'DM Sans', sans-serif; font-size: 1rem;
+      outline: none; transition: border-color .15s; -webkit-appearance: none;
+    }
+    .input-row input:focus { border-color: #c9a96e; }
+    .input-row input::placeholder { color: #3a3a3a; }
+    .input-row button { flex: 0 0 auto; padding: 10px 20px; }
+
+    /* ── Loading ── */
+    .loading { background: #141414; border: 1px solid #222; border-radius: 16px; padding: 40px 20px; text-align: center; }
+    .spinner { width: 32px; height: 32px; border: 2px solid #222; border-top-color: #c9a96e; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading strong { display: block; font-size: 0.95rem; color: #f0ede8; margin-bottom: 6px; font-weight: 500; }
+    .loading p { font-size: 0.82rem; color: #666; font-weight: 300; }
+
+    /* ── Results ── */
+    .results { background: #141414; border: 1px solid #222; border-radius: 16px; overflow: hidden; }
+    .prod-head { padding: 18px 18px 14px; border-bottom: 1px solid #1e1e1e; }
+    .barcode-tag { font-size: 0.68rem; color: #444; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 6px; }
+    .prod-head h2 { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
+    .brand { font-size: 0.78rem; color: #c9a96e; font-weight: 500; letter-spacing: .05em; }
+    .meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+    .chip { font-size: 0.68rem; padding: 3px 8px; border-radius: 20px; background: #1a1a1a; color: #888; border: 1px solid #252525; }
+
+    .aanbieder {
+      display: flex; align-items: center; padding: 13px 18px; border-bottom: 1px solid #1a1a1a;
+      gap: 12px; text-decoration: none; color: inherit; transition: background .1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .aanbieder:last-child { border-bottom: none; }
+    .aanbieder:active { background: #181818; }
+    .rank { font-size: 0.68rem; color: #444; font-weight: 600; width: 16px; text-align: center; flex-shrink: 0; }
+    .rank.gold { color: #c9a96e; font-size: 0.9rem; }
+    .info { flex: 1; min-width: 0; }
+    .naam { font-size: 0.88rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .details { font-size: 0.72rem; color: #555; margin-top: 2px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .badge { padding: 1px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 500; }
+    .badge.g { background: #1a2e1a; color: #5cb85c; }
+    .badge.b { background: #1e1e2e; color: #6e9ec9; }
+    .badge.f { background: #2e1e1e; color: #c97a6e; }
+    .prijs { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; flex-shrink: 0; }
+    .prijs.best { color: #5cb85c; }
+    .arrow { color: #2e2e2e; font-size: 1.1rem; }
+
+    .opmerking { padding: 14px 18px; font-size: 0.78rem; color: #666; line-height: 1.6; font-style: italic; border-top: 1px solid #1a1a1a; }
+
+    .not-found { padding: 36px 20px; text-align: center; }
+    .not-found .icon { font-size: 2.2rem; margin-bottom: 12px; }
+    .not-found h3 { font-family: 'Playfair Display', serif; font-size: 1rem; margin-bottom: 8px; }
+    .not-found p { font-size: 0.8rem; color: #666; line-height: 1.6; }
+
+    .reset { width: 100%; padding: 13px; background: transparent; border: 1px solid #1e1e1e; border-radius: 12px; color: #666; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; cursor: pointer; transition: all .15s; }
+    .reset:active { background: #141414; color: #f0ede8; }
+
+    .error-box { background: #1a0a0a; border: 1px solid #3a1515; border-radius: 16px; padding: 18px; font-size: 0.82rem; color: #e08080; line-height: 1.6; }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>Kledij Scanner</h1>
+    <span>Prijsvergelijker · Vlaanderen</span>
+  </header>
+
+  <main>
+    <!-- Scanner -->
+    <div class="scanner-box" id="scannerBox">
+      <div class="video-wrap">
+        <video id="preview" autoplay muted playsinline></video>
+        <div class="scan-overlay" id="overlay" style="display:none">
+          <div class="frame"><i></i><div class="scanline"></div></div>
+        </div>
+      </div>
+      <div class="scanner-footer">
+        <div class="dot off" id="dot"></div>
+        <p id="statusTxt">Klaar om te scannen</p>
+      </div>
+      <div class="btn-row">
+        <button class="primary" id="btnCamera">📷 Camera starten</button>
+        <button id="btnStop" class="hidden">✕ Stoppen</button>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div class="error-box hidden" id="errorBox"></div>
+
+    <!-- Manual input -->
+    <div class="manual" id="manualBox">
+      <label>Of voer barcode handmatig in</label>
+      <div class="input-row">
+        <input type="text" inputmode="numeric" placeholder="bv. 8720182187451" id="manualInput" />
+        <button class="primary" id="btnManual">Zoek</button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading hidden" id="loadingBox">
+      <div class="spinner"></div>
+      <strong id="loadingCode"></strong>
+      <p>Claude zoekt de goedkoopste aanbieders in Vlaanderen…</p>
+    </div>
+
+    <!-- Results -->
+    <div class="results hidden" id="resultsBox"></div>
+    <button class="reset hidden" id="btnReset">← Nieuwe scan</button>
+  </main>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const ANTHROPIC_KEY = 'JOUW_API_KEY_HIER';
+
+// ── State ──────────────────────────────────────────────────────────────────
+let reader = null;
+let stream = null;
+
+// ── UI helpers ─────────────────────────────────────────────────────────────
+function setDot(cls) {
+  const d = $('dot');
+  d.className = 'dot ' + (cls || '');
+}
+
+function setStatus(txt) { $('statusTxt').textContent = txt; }
+
+function showError(msg) {
+  const b = $('errorBox');
+  b.textContent = '⚠ ' + msg;
+  b.classList.remove('hidden');
+}
+
+function hideError() { $('errorBox').classList.add('hidden'); }
+
+function showLoading(code) {
+  $('scannerBox').classList.add('hidden');
+  $('manualBox').classList.add('hidden');
+  hideError();
+  $('loadingCode').textContent = 'Barcode: ' + code;
+  $('loadingBox').classList.remove('hidden');
+}
+
+function showResults(code, data) {
+  $('loadingBox').classList.add('hidden');
+  const box = $('resultsBox');
+
+  if (!data.gevonden) {
+    box.innerHTML = `
+      <div class="not-found">
+        <div class="icon">🔍</div>
+        <h3>Product niet gevonden</h3>
+        <p>${data.opmerking || 'Dit product kon niet worden gevonden.'}</p>
+      </div>`;
+  } else {
+    const p = data.product || {};
+    const chips = [
+      p.kleur ? `<span class="chip">🎨 ${p.kleur}</span>` : '',
+      p.materiaal ? `<span class="chip">🧵 ${p.materiaal}</span>` : ''
+    ].join('');
+
+    const aanbieders = (data.aanbieders || []).map((a, i) => {
+      const prijs = new Intl.NumberFormat('nl-BE', {style:'currency',currency:a.valuta||'EUR'}).format(a.prijs);
+      const badges = [
+        a.gratis_levering ? '<span class="badge g">Gratis levering</span>' : '',
+        a.in_belgie ? '<span class="badge b">🇧🇪 België</span>' : '',
+        a.type === 'fysiek' ? '<span class="badge f">Winkel</span>' : ''
+      ].join('');
+      return `
+        <a class="aanbieder" href="${a.url}" target="_blank" rel="noopener">
+          <div class="rank ${i===0?'gold':''}">${i===0?'★':i+1}</div>
+          <div class="info">
+            <div class="naam">${a.naam}</div>
+            <div class="details">${a.levertijd||''}${badges}</div>
+          </div>
+          <div class="prijs ${i===0?'best':''}">${prijs}</div>
+          <div class="arrow">›</div>
+        </a>`;
+    }).join('');
+
+    box.innerHTML = `
+      <div class="prod-head">
+        <div class="barcode-tag">Barcode · ${code}</div>
+        <h2>${p.naam || 'Onbekend product'}</h2>
+        ${p.merk ? `<div class="brand">${p.merk}</div>` : ''}
+        ${chips ? `<div class="meta">${chips}</div>` : ''}
+      </div>
+      ${aanbieders}
+      ${data.opmerking ? `<div class="opmerking">ℹ ${data.opmerking}</div>` : ''}`;
+  }
+
+  box.classList.remove('hidden');
+  $('btnReset').classList.remove('hidden');
+}
+
+function resetUI() {
+  $('scannerBox').classList.remove('hidden');
+  $('manualBox').classList.remove('hidden');
+  $('loadingBox').classList.add('hidden');
+  $('resultsBox').classList.add('hidden');
+  $('btnReset').classList.add('hidden');
+  hideError();
+  setDot('off'); setStatus('Klaar om te scannen');
+  $('manualInput').value = '';
+}
+
+// ── Camera ─────────────────────────────────────────────────────────────────
+async function startCamera() {
+  hideError();
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}});
+    $('preview').srcObject = stream;
+    $('overlay').style.display = 'flex';
+    $('btnCamera').classList.add('hidden');
+    $('btnStop').classList.remove('hidden');
+    setDot(''); setStatus('Richt op de barcode…');
+
+    if (typeof ZXingBrowser !== 'undefined') {
+      reader = new ZXingBrowser.BrowserMultiFormatReader();
+      reader.decodeFromStream(stream, $('preview'), (res, err) => {
+        if (res) { stopCamera(); handleCode(res.getText()); }
+      });
+    } else {
+      showError('Barcode scanner laadt nog. Gebruik handmatige invoer.');
+      stopCamera();
+    }
+  } catch(e) {
+    showError('Geen cameratoegang. Controleer Safari-instellingen of voer de barcode handmatig in.');
+    setDot('err'); setStatus('Fout');
+  }
+}
+
+function stopCamera() {
+  if (reader) { try { reader.reset(); } catch(_){} reader = null; }
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  $('preview').srcObject = null;
+  $('overlay').style.display = 'none';
+  $('btnCamera').classList.remove('hidden');
+  $('btnStop').classList.add('hidden');
+  setDot('off'); setStatus('Klaar om te scannen');
+}
+
+// ── Barcode lookup ─────────────────────────────────────────────────────────
+async function lookupBarcode(code) {
+  try {
+    const r = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${code}`);
+    const d = await r.json();
+    if (d.items && d.items[0]) return d.items[0].title || d.items[0].brand || null;
+  } catch(_){}
+  return null;
+}
+
+// ── Claude API ─────────────────────────────────────────────────────────────
+async function searchWithClaude(code, productInfo) {
+  const ctx = productInfo ? `Productnaam uit barcode lookup: "${productInfo}"` : `Geen info gevonden voor barcode ${code}`;
+  const prompt = `Je bent een slimme winkelassistent voor mensen in Vlaanderen, België.
+
+Barcode: ${code}
+${ctx}
+
+Zoek dit kledingstuk en geef me de 4 goedkoopste aanbieders die leveren naar België of fysieke winkels in Vlaanderen hebben.
+
+Geef je antwoord ALLEEN als geldig JSON (geen markdown, geen backticks):
+{
+  "product": { "naam": "...", "merk": "...", "omschrijving": "...", "kleur": "...", "materiaal": "..." },
+  "aanbieders": [
+    { "naam": "...", "prijs": 29.99, "valuta": "EUR", "levertijd": "2-3 werkdagen", "gratis_levering": true, "url": "https://...", "in_belgie": true, "type": "webshop" }
+  ],
+  "gevonden": true,
+  "opmerking": "..."
+}
+
+Als het product niet gevonden kan worden, zet "gevonden": false.`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      tools: [{type:'web_search_20250305', name:'web_search'}],
+      messages: [{role:'user', content: prompt}]
+    })
+  });
+
+  const data = await resp.json();
+  const text = data.content.map(b => b.type === 'text' ? b.text : '').filter(Boolean).join('\n');
+  const clean = text.replace(/```json|```/g,'').trim();
+  const match = clean.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('Geen geldig JSON antwoord');
+  return JSON.parse(match[0]);
+}
+
+// ── Handle code ────────────────────────────────────────────────────────────
+async function handleCode(code) {
+  code = code.trim();
+  if (!code) return;
+  showLoading(code);
+  try {
+    const info = await lookupBarcode(code);
+    const result = await searchWithClaude(code, info);
+    showResults(code, result);
+  } catch(e) {
+    $('loadingBox').classList.add('hidden');
+    $('scannerBox').classList.remove('hidden');
+    $('manualBox').classList.remove('hidden');
+    showError('Zoekopdracht mislukt: ' + (e.message || 'onbekende fout'));
+    setDot('err');
+  }
+}
+
+// ── Event listeners ────────────────────────────────────────────────────────
+$('btnCamera').addEventListener('click', startCamera);
+$('btnStop').addEventListener('click', stopCamera);
+$('btnReset').addEventListener('click', resetUI);
+$('btnManual').addEventListener('click', () => handleCode($('manualInput').value));
+$('manualInput').addEventListener('keydown', e => { if (e.key === 'Enter') handleCode($('manualInput').value); });
+
+// ── Service Worker ─────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
