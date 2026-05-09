@@ -12,7 +12,7 @@
   <title>Kledij Scanner</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.1/umd/index.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; background: #0d0d0d; color: #f0ede8; font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
@@ -147,7 +147,7 @@
     <!-- Scanner -->
     <div class="scanner-box" id="scannerBox">
       <div class="video-wrap">
-        <video id="preview" autoplay muted playsinline></video>
+        <div id="preview" style="width:100%;height:100%;"></div>
         <div class="scan-overlay" id="overlay" style="display:none">
           <div class="frame"><i></i><div class="scanline"></div></div>
         </div>
@@ -189,11 +189,9 @@
 
 <script>
 const $ = id => document.getElementById(id);
-const ANTHROPIC_KEY = 'JOUW_API_KEY_HIER';
+const ANTHROPIC_KEY = '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';
 
 // ── State ──────────────────────────────────────────────────────────────────
-let reader = null;
-let stream = null;
 
 // ── UI helpers ─────────────────────────────────────────────────────────────
 function setDot(cls) {
@@ -283,35 +281,59 @@ function resetUI() {
 }
 
 // ── Camera ─────────────────────────────────────────────────────────────────
-async function startCamera() {
+function startCamera() {
   hideError();
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}});
-    $('preview').srcObject = stream;
-    $('overlay').style.display = 'flex';
-    $('btnCamera').classList.add('hidden');
-    $('btnStop').classList.remove('hidden');
-    setDot(''); setStatus('Richt op de barcode…');
-
-    if (typeof ZXingBrowser !== 'undefined') {
-      reader = new ZXingBrowser.BrowserMultiFormatReader();
-      reader.decodeFromStream(stream, $('preview'), (res, err) => {
-        if (res) { stopCamera(); handleCode(res.getText()); }
-      });
-    } else {
-      showError('Barcode scanner laadt nog. Gebruik handmatige invoer.');
-      stopCamera();
-    }
-  } catch(e) {
-    showError('Geen cameratoegang. Controleer Safari-instellingen of voer de barcode handmatig in.');
-    setDot('err'); setStatus('Fout');
+  if (typeof Quagga === 'undefined') {
+    showError('Scanner laadt nog, probeer opnieuw.');
+    return;
   }
+
+  $('overlay').style.display = 'flex';
+  $('btnCamera').classList.add('hidden');
+  $('btnStop').classList.remove('hidden');
+  setDot(''); setStatus('Richt op de barcode…');
+
+  Quagga.init({
+    inputStream: {
+      name: 'Live',
+      type: 'LiveStream',
+      target: $('preview'),
+      constraints: {
+        facingMode: 'environment',
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      }
+    },
+    decoder: {
+      readers: ['ean_reader', 'ean_8_reader', 'upc_reader', 'upc_e_reader', 'code_128_reader']
+    },
+    locate: true
+  }, function(err) {
+    if (err) {
+      showError('Geen cameratoegang. Controleer Safari-instellingen of voer de barcode handmatig in.');
+      setDot('err'); setStatus('Fout');
+      $('btnCamera').classList.remove('hidden');
+      $('btnStop').classList.add('hidden');
+      $('overlay').style.display = 'none';
+      return;
+    }
+    Quagga.start();
+  });
+
+  // Debounce: zelfde code niet 2x sturen
+  let lastCode = null, lastTime = 0;
+  Quagga.onDetected(function(result) {
+    const code = result.codeResult.code;
+    const now = Date.now();
+    if (code === lastCode && now - lastTime < 3000) return;
+    lastCode = code; lastTime = now;
+    stopCamera();
+    handleCode(code);
+  });
 }
 
 function stopCamera() {
-  if (reader) { try { reader.reset(); } catch(_){} reader = null; }
-  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-  $('preview').srcObject = null;
+  try { Quagga.stop(); } catch(_){}
   $('overlay').style.display = 'none';
   $('btnCamera').classList.remove('hidden');
   $('btnStop').classList.add('hidden');
