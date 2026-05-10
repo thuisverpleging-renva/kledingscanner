@@ -408,8 +408,7 @@ async function searchWithInfo(barcode, brand, productName, extraInfo) {
     : `Zoek ook op zalando.be, bol.com en de officiële merkwebshop. Vergelijk prijzen inclusief verzendkosten.`;
 
   const prompt = `Je bent een slimme winkelassistent voor mensen in Vlaanderen, België.
-${parts.join('
-')}
+${parts.join('\n')}
 
 ${extraTips}
 
