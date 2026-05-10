@@ -290,7 +290,7 @@ async function searchWithClaude(code, productInfo) {
   const prompt = `Je bent een winkelassistent voor Vlaanderen, België.\nBarcode: ${code}\n${ctx}\n\nZoek dit kledingstuk. Geef de 4 goedkoopste aanbieders die leveren naar België of fysieke winkels in Vlaanderen hebben.\n\nAntwoord ALLEEN als JSON (geen markdown):\n{"product":{"naam":"...","merk":"...","kleur":"...","materiaal":"..."},"aanbieders":[{"naam":"...","prijs":29.99,"valuta":"EUR","levertijd":"2-3 werkdagen","gratis_levering":true,"url":"https://...","in_belgie":true,"type":"webshop"}],"gevonden":true,"opmerking":"..."}\n\nAls niet gevonden: "gevonden":false`;
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: {'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
+    headers: {'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
     body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:prompt}]})
   });
   const data = await resp.json();
