@@ -390,14 +390,35 @@ function parseJSON(text) {
 
 const RESULT_FORMAT = `{"product":{"naam":"...","merk":"...","kleur":"...","materiaal":"...","maat":"..."},"aanbieders":[{"naam":"...","prijs":29.99,"valuta":"EUR","levertijd":"2-3 werkdagen","gratis_levering":true,"url":"https://...","in_belgie":true,"type":"webshop"}],"gevonden":true,"opmerking":"..."}`;
 
+const EXCLUSIVE_BRANDS = ['zara','mango','massimo dutti','bershka','pull&bear','stradivarius'];
+function isExclusiveBrand(b) { return b && EXCLUSIVE_BRANDS.some(x => b.toLowerCase().includes(x)); }
+
 // ── Search by barcode + extra info ─────────────────────────────────────────
 async function searchWithInfo(barcode, brand, productName, extraInfo) {
-  const parts = [`Barcode: ${barcode||'onbekend'}`];
+  const parts = [];
+  if (barcode) parts.push(`Barcode: ${barcode}`);
   if (brand) parts.push(`Merk: ${brand}`);
   if (productName) parts.push(`Productnaam: ${productName}`);
   if (extraInfo) parts.push(`Extra info: ${extraInfo}`);
+  if (!parts.length) parts.push('Onbekend product');
 
-  const prompt = `Je bent een winkelassistent voor Vlaanderen, België.\n${parts.join('\n')}\n\nZoek dit kledingstuk. Geef de 4 goedkoopste aanbieders die leveren naar België of fysieke winkels in Vlaanderen hebben.\n\nAntwoord ALLEEN als JSON (geen markdown, geen backticks):\n${RESULT_FORMAT}\n\nAls niet gevonden: "gevonden":false`;
+  const exclusief = isExclusiveBrand(brand);
+  const extraTips = exclusief
+    ? `BELANGRIJK: ${brand} is een exclusief merk dat alleen via eigen kanalen verkoopt. Zoek op de officiële ${brand} website én op zalando.be. Geef ook vergelijkbare alternatieven als het exacte product niet beschikbaar is.`
+    : `Zoek ook op zalando.be, bol.com en de officiële merkwebshop. Vergelijk prijzen inclusief verzendkosten.`;
+
+  const prompt = `Je bent een slimme winkelassistent voor mensen in Vlaanderen, België.
+${parts.join('
+')}
+
+${extraTips}
+
+Zoek dit kledingstuk online. Geef de 4 goedkoopste aanbieders die leveren naar België of fysieke winkels in Vlaanderen hebben. Sorteer van goedkoopst naar duurste. Geef altijd echte, klikbare URLs.
+
+Antwoord ALLEEN als JSON (geen markdown, geen backticks):
+${RESULT_FORMAT}
+
+Als niet gevonden: zet "gevonden":false en leg uit waarom in "opmerking".`;
   const text = await callClaude([{role:'user', content: prompt}]);
   return parseJSON(text);
 }
@@ -442,7 +463,22 @@ async function searchWithPhoto(base64, mimeType) {
   if (labelInfo.kleur) parts.push(`Kleur: ${labelInfo.kleur}`);
   if (labelInfo.maat) parts.push(`Maat: ${labelInfo.maat}`);
 
-  const searchPrompt = `Je bent een winkelassistent voor Vlaanderen, België.\n${parts.join('\n')}\n\nZoek dit kledingstuk online. Geef de 4 goedkoopste aanbieders die leveren naar België of fysieke winkels in Vlaanderen hebben.\n\nAntwoord ALLEEN als JSON (geen markdown, geen backticks):\n${RESULT_FORMAT}\n\nAls niet gevonden: "gevonden":false`;
+  const exclusief = isExclusiveBrand(labelInfo.merk);
+  const extraTips = exclusief
+    ? `BELANGRIJK: ${labelInfo.merk||'Dit merk'} verkoopt exclusief via eigen kanalen. Zoek op de officiële website én zalando.be. Geef ook vergelijkbare alternatieven als het exacte product niet beschikbaar is.`
+    : `Zoek ook op zalando.be, bol.com en de officiële merkwebshop. Vergelijk prijzen inclusief verzendkosten.`;
+
+  const searchPrompt = `Je bent een slimme winkelassistent voor mensen in Vlaanderen, België.
+${parts.join('\n')}
+
+${extraTips}
+
+Zoek dit kledingstuk online. Geef de 4 goedkoopste aanbieders die leveren naar België of fysieke winkels in Vlaanderen hebben. Sorteer van goedkoopst naar duurste. Geef altijd echte, klikbare URLs.
+
+Antwoord ALLEEN als JSON (geen markdown, geen backticks):
+${RESULT_FORMAT}
+
+Als niet gevonden: zet "gevonden":false en leg uit waarom in "opmerking".`;
   const searchText = await callClaude([{role:'user', content: searchPrompt}]);
   return { result: parseJSON(searchText), labelInfo };
 }
