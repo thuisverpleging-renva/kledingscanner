@@ -18,19 +18,15 @@
     html, body { height: 100%; background: #0d0d0d; color: #f0ede8; font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
     #app { min-height: 100vh; display: flex; flex-direction: column; }
 
-    header {
-      padding: calc(env(safe-area-inset-top, 0px) + 20px) 20px 16px;
-      border-bottom: 1px solid #1e1e1e;
-      display: flex; align-items: center; justify-content: space-between;
-    }
+    header { padding: calc(env(safe-area-inset-top,0px) + 20px) 20px 16px; border-bottom: 1px solid #1e1e1e; display: flex; align-items: center; justify-content: space-between; }
     .header-left { display: flex; align-items: baseline; gap: 10px; }
     header h1 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
     header span { font-size: 0.72rem; color: #555; text-transform: uppercase; letter-spacing: 0.12em; }
     .btn-key { background: transparent; border: 1px solid #2a2a2a; border-radius: 8px; color: #555; font-size: 0.72rem; padding: 5px 10px; cursor: pointer; font-family: 'DM Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-    .btn-key:active { background: #1a1a1a; }
 
     main { flex: 1; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; max-width: 520px; margin: 0 auto; width: 100%; }
 
+    /* Key screen */
     .key-screen { background: #141414; border: 1px solid #222; border-radius: 16px; padding: 28px 20px; text-align: center; }
     .key-screen .lock { font-size: 2rem; margin-bottom: 16px; }
     .key-screen h2 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 8px; }
@@ -39,10 +35,15 @@
     .key-input { width: 100%; background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 10px; padding: 12px 14px; color: #f0ede8; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; margin-bottom: 10px; -webkit-appearance: none; }
     .key-input:focus { border-color: #c9a96e; }
     .key-input::placeholder { color: #3a3a3a; }
-    .key-save { width: 100%; padding: 13px; background: #c9a96e; border: none; border-radius: 10px; color: #0d0d0d; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-    .key-save:active { background: #d4b880; }
+    .key-save { width: 100%; padding: 13px; background: #c9a96e; border: none; border-radius: 10px; color: #0d0d0d; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
     .key-note { font-size: 0.72rem; color: #444; margin-top: 12px; line-height: 1.5; }
 
+    /* Tabs */
+    .tabs { display: flex; background: #141414; border: 1px solid #222; border-radius: 14px; padding: 4px; gap: 4px; }
+    .tab { flex: 1; padding: 9px 6px; border-radius: 10px; border: none; background: transparent; color: #666; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: all .15s; -webkit-tap-highlight-color: transparent; text-align: center; }
+    .tab.active { background: #c9a96e; color: #0d0d0d; font-weight: 600; }
+
+    /* Scanner */
     .scanner-box { background: #141414; border: 1px solid #222; border-radius: 16px; overflow: hidden; }
     .video-wrap { position: relative; width: 100%; aspect-ratio: 4/3; background: #000; overflow: hidden; }
     #preview { width: 100%; height: 100%; }
@@ -57,34 +58,49 @@
     .frame i::after  { bottom:0; right:0; border-width: 0 2px 2px 0; }
     .scanline { position: absolute; left: 8px; right: 8px; height: 1px; background: linear-gradient(90deg, transparent, #c9a96e88, #c9a96e, #c9a96e88, transparent); animation: scan 2s ease-in-out infinite; }
     @keyframes scan { 0%{top:8%;opacity:0} 15%{opacity:1} 85%{opacity:1} 100%{top:88%;opacity:0} }
-
     .scanner-footer { padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: #c9a96e; animation: pulse 1.5s ease-in-out infinite; flex-shrink: 0; }
     .dot.off { background: #333; animation: none; }
     .dot.err { background: #e05555; animation: none; }
-    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.75)} }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
     .scanner-footer p { font-size: 0.82rem; color: #777; flex: 1; }
-
     .btn-row { display: flex; gap: 8px; padding: 0 16px 16px; }
+
     button { flex: 1; padding: 11px 14px; border-radius: 10px; border: 1px solid #2e2e2e; background: transparent; color: #f0ede8; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500; cursor: pointer; -webkit-tap-highlight-color: transparent; }
     button:active { background: #1a1a1a; }
     button.primary { background: #c9a96e; border-color: #c9a96e; color: #0d0d0d; font-weight: 600; }
     button.primary:active { background: #d4b880; }
 
-    .manual { background: #141414; border: 1px solid #222; border-radius: 16px; padding: 16px; }
-    .manual label { display: block; font-size: 0.7rem; color: #555; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 10px; font-weight: 500; }
-    .input-row { display: flex; gap: 8px; }
-    .input-row input { flex: 1; background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 10px; padding: 10px 14px; color: #f0ede8; font-family: 'DM Sans', sans-serif; font-size: 1rem; outline: none; -webkit-appearance: none; }
-    .input-row input:focus { border-color: #c9a96e; }
-    .input-row input::placeholder { color: #3a3a3a; }
-    .input-row button { flex: 0 0 auto; padding: 10px 20px; }
+    /* Manual panel */
+    .panel { background: #141414; border: 1px solid #222; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .panel-label { font-size: 0.7rem; color: #555; text-transform: uppercase; letter-spacing: .1em; font-weight: 500; }
+    .field-row { display: flex; gap: 8px; }
+    .field-row input { flex: 1; background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 10px; padding: 10px 14px; color: #f0ede8; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; -webkit-appearance: none; }
+    .field-row input:focus { border-color: #c9a96e; }
+    .field-row input::placeholder { color: #3a3a3a; }
+    .field-row button { flex: 0 0 auto; padding: 10px 18px; }
+    .hint { font-size: 0.72rem; color: #444; }
 
+    /* Photo panel */
+    .photo-drop { border: 1.5px dashed #2a2a2a; border-radius: 12px; padding: 28px 16px; text-align: center; cursor: pointer; transition: border-color .15s; position: relative; }
+    .photo-drop:active, .photo-drop.drag { border-color: #c9a96e; }
+    .photo-drop input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .photo-drop .icon { font-size: 1.8rem; margin-bottom: 8px; }
+    .photo-drop p { font-size: 0.82rem; color: #666; }
+    .photo-drop p strong { color: #c9a96e; }
+    .preview-img { width: 100%; border-radius: 10px; max-height: 220px; object-fit: cover; display: block; }
+    .photo-search-btn { width: 100%; padding: 12px; background: #c9a96e; border: none; border-radius: 10px; color: #0d0d0d; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; margin-top: 4px; }
+    .photo-search-btn:active { background: #d4b880; }
+    .photo-search-btn:disabled { opacity: .4; pointer-events: none; }
+
+    /* Loading */
     .loading { background: #141414; border: 1px solid #222; border-radius: 16px; padding: 40px 20px; text-align: center; }
     .spinner { width: 32px; height: 32px; border: 2px solid #222; border-top-color: #c9a96e; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading strong { display: block; font-size: 0.95rem; color: #f0ede8; margin-bottom: 6px; font-weight: 500; }
-    .loading p { font-size: 0.82rem; color: #666; font-weight: 300; }
+    .loading p { font-size: 0.82rem; color: #666; }
 
+    /* Results */
     .results { background: #141414; border: 1px solid #222; border-radius: 16px; overflow: hidden; }
     .prod-head { padding: 18px 18px 14px; border-bottom: 1px solid #1e1e1e; }
     .barcode-tag { font-size: 0.68rem; color: #444; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 6px; }
@@ -129,16 +145,25 @@
   </header>
 
   <main>
+    <!-- Key screen -->
     <div class="key-screen hidden" id="keyScreen">
       <div class="lock">🔑</div>
       <h2>API Key instellen</h2>
-      <p>Je key wordt veilig opgeslagen op dit toestel en staat nooit in de code op GitHub.<br><br>
+      <p>Je key wordt veilig opgeslagen op dit toestel en staat nooit in de GitHub code.<br><br>
       Haal je key op via <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys</p>
       <input type="password" class="key-input" id="keyInput" placeholder="sk-ant-api03-..." autocomplete="off" autocorrect="off" spellcheck="false" />
       <button class="key-save" id="btnSaveKey">Opslaan en doorgaan</button>
       <p class="key-note">Opgeslagen in je browser · Nooit zichtbaar in GitHub</p>
     </div>
 
+    <!-- Tabs -->
+    <div class="tabs hidden" id="tabsBox">
+      <button class="tab active" id="tabScan" onclick="switchTab('scan')">📷 Scannen</button>
+      <button class="tab" id="tabManual" onclick="switchTab('manual')">✏️ Handmatig</button>
+      <button class="tab" id="tabPhoto" onclick="switchTab('photo')">🖼️ Foto</button>
+    </div>
+
+    <!-- Scanner tab -->
     <div class="scanner-box hidden" id="scannerBox">
       <div class="video-wrap">
         <div id="preview"></div>
@@ -156,22 +181,48 @@
       </div>
     </div>
 
-    <div class="error-box hidden" id="errorBox"></div>
-
-    <div class="manual hidden" id="manualBox">
-      <label>Of voer barcode handmatig in</label>
-      <div class="input-row">
-        <input type="text" inputmode="numeric" placeholder="bv. 8720182187451" id="manualInput" />
+    <!-- Manual tab -->
+    <div class="panel hidden" id="manualBox">
+      <div class="panel-label">Barcode</div>
+      <div class="field-row">
+        <input type="text" inputmode="numeric" placeholder="bv. 5715865830024" id="manualInput" />
+      </div>
+      <div class="panel-label" style="margin-top:4px">Merk (optioneel maar helpt!)</div>
+      <div class="field-row">
+        <input type="text" placeholder="bv. Only & Sons, Nike, Zara..." id="brandInput" />
+      </div>
+      <div class="panel-label" style="margin-top:4px">Productnaam (optioneel)</div>
+      <div class="field-row">
+        <input type="text" placeholder="bv. ONSJESPER RLX SS TEE" id="productInput" />
         <button class="primary" id="btnManual">Zoek</button>
       </div>
+      <div class="hint">Hoe meer info, hoe beter het resultaat</div>
     </div>
 
+    <!-- Photo tab -->
+    <div class="panel hidden" id="photoBox">
+      <div class="panel-label">Upload een foto van het label</div>
+      <div class="photo-drop" id="photoDrop">
+        <input type="file" id="photoInput" accept="image/*" capture="environment" />
+        <div class="icon">📸</div>
+        <p>Tik om een foto te maken of te kiezen<br><strong>Claude leest het label automatisch</strong></p>
+      </div>
+      <img id="photoPreview" class="preview-img hidden" alt="label preview" />
+      <button class="photo-search-btn hidden" id="btnPhotoSearch">🔍 Label analyseren en zoeken</button>
+      <div class="hint">Werkt het beste met duidelijke foto's van het volledige label</div>
+    </div>
+
+    <!-- Error -->
+    <div class="error-box hidden" id="errorBox"></div>
+
+    <!-- Loading -->
     <div class="loading hidden" id="loadingBox">
       <div class="spinner"></div>
-      <strong id="loadingCode"></strong>
-      <p>Claude zoekt de goedkoopste aanbieders in Vlaanderen…</p>
+      <strong id="loadingMsg">Bezig…</strong>
+      <p id="loadingSubMsg">Claude zoekt de goedkoopste aanbieders in Vlaanderen…</p>
     </div>
 
+    <!-- Results -->
     <div class="results hidden" id="resultsBox"></div>
     <button class="reset hidden" id="btnReset">← Nieuwe scan</button>
   </main>
@@ -180,61 +231,83 @@
 <script>
 const $ = id => document.getElementById(id);
 
+// ── Key ────────────────────────────────────────────────────────────────────
 function getKey() { return localStorage.getItem('anthropic_key') || ''; }
 function saveKey(k) { localStorage.setItem('anthropic_key', k.trim()); }
 
 function showKeyScreen() {
-  ['scannerBox','manualBox','loadingBox','resultsBox','btnReset','errorBox'].forEach(id => $(id).classList.add('hidden'));
+  ['tabsBox','scannerBox','manualBox','photoBox','loadingBox','resultsBox','btnReset','errorBox'].forEach(id => $(id).classList.add('hidden'));
   $('keyScreen').classList.remove('hidden');
   if (getKey()) $('keyInput').value = getKey();
 }
 
 function showMainUI() {
   $('keyScreen').classList.add('hidden');
-  $('scannerBox').classList.remove('hidden');
-  $('manualBox').classList.remove('hidden');
+  $('tabsBox').classList.remove('hidden');
+  switchTab('scan');
 }
 
+// ── Tabs ───────────────────────────────────────────────────────────────────
+let currentTab = 'scan';
+function switchTab(tab) {
+  stopCamera();
+  currentTab = tab;
+  ['scan','manual','photo'].forEach(t => {
+    $(t === 'scan' ? 'scannerBox' : t + 'Box').classList.add('hidden');
+    $('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.remove('active');
+  });
+  $(tab === 'scan' ? 'scannerBox' : tab + 'Box').classList.remove('hidden');
+  $('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  hideError();
+}
+
+// ── UI helpers ─────────────────────────────────────────────────────────────
 function setDot(cls) { $('dot').className = 'dot ' + (cls||''); }
 function setStatus(t) { $('statusTxt').textContent = t; }
 function showError(msg) { $('errorBox').textContent = '⚠ ' + msg; $('errorBox').classList.remove('hidden'); }
 function hideError() { $('errorBox').classList.add('hidden'); }
 
-function showLoading(code) {
-  $('scannerBox').classList.add('hidden');
-  $('manualBox').classList.add('hidden');
-  hideError();
-  $('loadingCode').textContent = 'Barcode: ' + code;
+function showLoading(msg, sub) {
+  ['scannerBox','manualBox','photoBox','tabsBox','errorBox'].forEach(id => $(id).classList.add('hidden'));
+  $('loadingMsg').textContent = msg || 'Bezig…';
+  $('loadingSubMsg').textContent = sub || 'Claude zoekt de goedkoopste aanbieders in Vlaanderen…';
   $('loadingBox').classList.remove('hidden');
 }
 
-function showResults(code, data) {
+function showResults(label, data) {
   $('loadingBox').classList.add('hidden');
   const box = $('resultsBox');
   if (!data.gevonden) {
     box.innerHTML = `<div class="not-found"><div class="icon">🔍</div><h3>Product niet gevonden</h3><p>${data.opmerking||'Niet gevonden.'}</p></div>`;
   } else {
     const p = data.product || {};
-    const chips = [p.kleur?`<span class="chip">🎨 ${p.kleur}</span>`:'', p.materiaal?`<span class="chip">🧵 ${p.materiaal}</span>`:''].join('');
+    const chips = [p.kleur?`<span class="chip">🎨 ${p.kleur}</span>`:'', p.materiaal?`<span class="chip">🧵 ${p.materiaal}</span>`:'', p.maat?`<span class="chip">📐 ${p.maat}</span>`:''].join('');
     const rows = (data.aanbieders||[]).map((a,i) => {
       const pr = new Intl.NumberFormat('nl-BE',{style:'currency',currency:a.valuta||'EUR'}).format(a.prijs);
       const bdg = [a.gratis_levering?'<span class="badge g">Gratis levering</span>':'', a.in_belgie?'<span class="badge b">🇧🇪 België</span>':'', a.type==='fysiek'?'<span class="badge f">Winkel</span>':''].join('');
       return `<a class="aanbieder" href="${a.url}" target="_blank" rel="noopener"><div class="rank ${i===0?'gold':''}">${i===0?'★':i+1}</div><div class="info"><div class="naam">${a.naam}</div><div class="details">${a.levertijd||''}${bdg}</div></div><div class="prijs ${i===0?'best':''}">${pr}</div><div class="arrow">›</div></a>`;
     }).join('');
-    box.innerHTML = `<div class="prod-head"><div class="barcode-tag">Barcode · ${code}</div><h2>${p.naam||'Onbekend'}</h2>${p.merk?`<div class="brand">${p.merk}</div>`:''}${chips?`<div class="meta">${chips}</div>`:''}</div>${rows}${data.opmerking?`<div class="opmerking">ℹ ${data.opmerking}</div>`:''}`;
+    box.innerHTML = `<div class="prod-head"><div class="barcode-tag">${label}</div><h2>${p.naam||'Onbekend product'}</h2>${p.merk?`<div class="brand">${p.merk}</div>`:''}${chips?`<div class="meta">${chips}</div>`:''}</div>${rows}${data.opmerking?`<div class="opmerking">ℹ ${data.opmerking}</div>`:''}`;
   }
   box.classList.remove('hidden');
   $('btnReset').classList.remove('hidden');
 }
 
 function resetUI() {
-  $('scannerBox').classList.remove('hidden');
-  $('manualBox').classList.remove('hidden');
   ['loadingBox','resultsBox','btnReset','errorBox'].forEach(id => $(id).classList.add('hidden'));
+  $('tabsBox').classList.remove('hidden');
+  switchTab(currentTab);
   setDot('off'); setStatus('Klaar om te scannen');
   $('manualInput').value = '';
+  $('brandInput').value = '';
+  $('productInput').value = '';
+  $('photoPreview').classList.add('hidden');
+  $('btnPhotoSearch').classList.add('hidden');
+  $('photoInput').value = '';
+  selectedPhotoBase64 = null;
 }
 
+// ── Camera ─────────────────────────────────────────────────────────────────
 function startCamera() {
   hideError();
   if (typeof Quagga === 'undefined') { showError('Scanner laadt nog, probeer opnieuw.'); return; }
@@ -248,7 +321,7 @@ function startCamera() {
     locate: true
   }, function(err) {
     if (err) {
-      showError('Geen cameratoegang. Gebruik handmatige invoer.');
+      showError('Geen cameratoegang. Gebruik handmatige invoer of fotomodus.');
       setDot('err'); setStatus('Fout');
       $('btnCamera').classList.remove('hidden');
       $('btnStop').classList.add('hidden');
@@ -262,7 +335,8 @@ function startCamera() {
     const code = r.codeResult.code, now = Date.now();
     if (code===last && now-lastT<3000) return;
     last=code; lastT=now;
-    stopCamera(); handleCode(code);
+    stopCamera();
+    handleBarcode(code);
   });
 }
 
@@ -274,6 +348,7 @@ function stopCamera() {
   setDot('off'); setStatus('Klaar om te scannen');
 }
 
+// ── Barcode lookup ─────────────────────────────────────────────────────────
 async function lookupBarcode(code) {
   try {
     const r = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${code}`);
@@ -283,42 +358,172 @@ async function lookupBarcode(code) {
   return null;
 }
 
-async function searchWithClaude(code, productInfo) {
+// ── Claude API ─────────────────────────────────────────────────────────────
+async function callClaude(messages) {
   const key = getKey();
   if (!key) { showKeyScreen(); throw new Error('Geen API key.'); }
-  const ctx = productInfo ? `Productnaam: "${productInfo}"` : `Geen info voor barcode ${code}`;
-  const prompt = `Je bent een winkelassistent voor Vlaanderen, België.\nBarcode: ${code}\n${ctx}\n\nZoek dit kledingstuk. Geef de 4 goedkoopste aanbieders die leveren naar België of fysieke winkels in Vlaanderen hebben.\n\nAntwoord ALLEEN als JSON (geen markdown):\n{"product":{"naam":"...","merk":"...","kleur":"...","materiaal":"..."},"aanbieders":[{"naam":"...","prijs":29.99,"valuta":"EUR","levertijd":"2-3 werkdagen","gratis_levering":true,"url":"https://...","in_belgie":true,"type":"webshop"}],"gevonden":true,"opmerking":"..."}\n\nAls niet gevonden: "gevonden":false`;
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: {'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body: JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1000,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:prompt}]})
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1500,
+      tools: [{type:'web_search_20250305', name:'web_search'}],
+      messages
+    })
   });
   const data = await resp.json();
-  if (data.error) throw new Error(data.error.message||'API fout');
-  const text = data.content.map(b=>b.type==='text'?b.text:'').filter(Boolean).join('\n');
+  if (data.error) throw new Error(data.error.message || 'API fout');
+  return data.content.map(b => b.type==='text' ? b.text : '').filter(Boolean).join('\n');
+}
+
+function parseJSON(text) {
   const match = text.replace(/```json|```/g,'').trim().match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('Geen geldig antwoord');
+  if (!match) throw new Error('Geen geldig antwoord van Claude');
   return JSON.parse(match[0]);
 }
 
-async function handleCode(code) {
+const RESULT_FORMAT = `{"product":{"naam":"...","merk":"...","kleur":"...","materiaal":"...","maat":"..."},"aanbieders":[{"naam":"...","prijs":29.99,"valuta":"EUR","levertijd":"2-3 werkdagen","gratis_levering":true,"url":"https://...","in_belgie":true,"type":"webshop"}],"gevonden":true,"opmerking":"..."}`;
+
+// ── Search by barcode + extra info ─────────────────────────────────────────
+async function searchWithInfo(barcode, brand, productName, extraInfo) {
+  const parts = [`Barcode: ${barcode||'onbekend'}`];
+  if (brand) parts.push(`Merk: ${brand}`);
+  if (productName) parts.push(`Productnaam: ${productName}`);
+  if (extraInfo) parts.push(`Extra info: ${extraInfo}`);
+
+  const prompt = `Je bent een winkelassistent voor Vlaanderen, België.\n${parts.join('\n')}\n\nZoek dit kledingstuk. Geef de 4 goedkoopste aanbieders die leveren naar België of fysieke winkels in Vlaanderen hebben.\n\nAntwoord ALLEEN als JSON (geen markdown, geen backticks):\n${RESULT_FORMAT}\n\nAls niet gevonden: "gevonden":false`;
+  const text = await callClaude([{role:'user', content: prompt}]);
+  return parseJSON(text);
+}
+
+// ── Search by photo ────────────────────────────────────────────────────────
+async function searchWithPhoto(base64, mimeType) {
+  // Stap 1: label uitlezen
+  const readPrompt = `Lees dit kledijlabel nauwkeurig. Geef terug als JSON:\n{"barcode":"...","merk":"...","product_naam":"...","stijlnummer":"...","kleur":"...","maat":"...","prijs_eur":0,"materiaal":"..."}\nAls iets niet zichtbaar is, zet null.`;
+  const readText = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': getKey(),
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 500,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image', source: { type: 'base64', media_type: mimeType, data: base64 } },
+          { type: 'text', text: readPrompt }
+        ]
+      }]
+    })
+  }).then(r => r.json()).then(d => {
+    if (d.error) throw new Error(d.error.message);
+    return d.content.map(b => b.type==='text' ? b.text : '').join('');
+  });
+
+  let labelInfo;
+  try { labelInfo = parseJSON(readText); } catch(_) { labelInfo = {}; }
+
+  // Stap 2: zoeken op basis van labelinfo
+  const parts = [];
+  if (labelInfo.barcode) parts.push(`Barcode: ${labelInfo.barcode}`);
+  if (labelInfo.merk) parts.push(`Merk: ${labelInfo.merk}`);
+  if (labelInfo.product_naam) parts.push(`Productnaam: ${labelInfo.product_naam}`);
+  if (labelInfo.stijlnummer) parts.push(`Stijlnummer: ${labelInfo.stijlnummer}`);
+  if (labelInfo.kleur) parts.push(`Kleur: ${labelInfo.kleur}`);
+  if (labelInfo.maat) parts.push(`Maat: ${labelInfo.maat}`);
+
+  const searchPrompt = `Je bent een winkelassistent voor Vlaanderen, België.\n${parts.join('\n')}\n\nZoek dit kledingstuk online. Geef de 4 goedkoopste aanbieders die leveren naar België of fysieke winkels in Vlaanderen hebben.\n\nAntwoord ALLEEN als JSON (geen markdown, geen backticks):\n${RESULT_FORMAT}\n\nAls niet gevonden: "gevonden":false`;
+  const searchText = await callClaude([{role:'user', content: searchPrompt}]);
+  return { result: parseJSON(searchText), labelInfo };
+}
+
+// ── Handlers ───────────────────────────────────────────────────────────────
+async function handleBarcode(code) {
   code = (code||'').trim();
   if (!code) return;
   if (!getKey()) { showKeyScreen(); return; }
-  showLoading(code);
+  showLoading(`Barcode: ${code}`, 'Claude zoekt de goedkoopste aanbieders in Vlaanderen…');
   try {
-    const info = await lookupBarcode(code);
-    const result = await searchWithClaude(code, info);
-    showResults(code, result);
+    const dbInfo = await lookupBarcode(code);
+    const result = await searchWithInfo(code, null, dbInfo, null);
+    showResults(`Barcode · ${code}`, result);
   } catch(e) {
     $('loadingBox').classList.add('hidden');
-    $('scannerBox').classList.remove('hidden');
-    $('manualBox').classList.remove('hidden');
+    $('tabsBox').classList.remove('hidden');
+    switchTab('scan');
     showError('Fout: ' + (e.message||'onbekend'));
     setDot('err');
   }
 }
 
+async function handleManual() {
+  const code = $('manualInput').value.trim();
+  const brand = $('brandInput').value.trim();
+  const product = $('productInput').value.trim();
+  if (!code && !brand && !product) { showError('Vul minstens een barcode of productnaam in.'); return; }
+  if (!getKey()) { showKeyScreen(); return; }
+  showLoading('Zoeken…', 'Claude zoekt de goedkoopste aanbieders in Vlaanderen…');
+  try {
+    let dbInfo = null;
+    if (code) dbInfo = await lookupBarcode(code);
+    const result = await searchWithInfo(code||null, brand||null, product||dbInfo||null, null);
+    const label = [code?`Barcode · ${code}`:'', brand, product].filter(Boolean).join(' · ') || 'Handmatige zoekopdracht';
+    showResults(label, result);
+  } catch(e) {
+    $('loadingBox').classList.add('hidden');
+    $('tabsBox').classList.remove('hidden');
+    switchTab('manual');
+    showError('Fout: ' + (e.message||'onbekend'));
+  }
+}
+
+// ── Photo handling ─────────────────────────────────────────────────────────
+let selectedPhotoBase64 = null;
+let selectedMimeType = 'image/jpeg';
+
+$('photoInput').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  selectedMimeType = file.type || 'image/jpeg';
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    selectedPhotoBase64 = dataUrl.split(',')[1];
+    $('photoPreview').src = dataUrl;
+    $('photoPreview').classList.remove('hidden');
+    $('btnPhotoSearch').classList.remove('hidden');
+    $('btnPhotoSearch').disabled = false;
+  };
+  reader.readAsDataURL(file);
+});
+
+async function handlePhotoSearch() {
+  if (!selectedPhotoBase64) return;
+  if (!getKey()) { showKeyScreen(); return; }
+  showLoading('Label analyseren…', 'Claude leest het label en zoekt de beste prijs…');
+  try {
+    const { result, labelInfo } = await searchWithPhoto(selectedPhotoBase64, selectedMimeType);
+    const label = [labelInfo.merk, labelInfo.product_naam, labelInfo.barcode ? `Barcode · ${labelInfo.barcode}` : ''].filter(Boolean).join(' · ') || 'Foto-analyse';
+    showResults(label, result);
+  } catch(e) {
+    $('loadingBox').classList.add('hidden');
+    $('tabsBox').classList.remove('hidden');
+    switchTab('photo');
+    showError('Fout: ' + (e.message||'onbekend'));
+  }
+}
+
+// ── Event listeners ────────────────────────────────────────────────────────
 $('btnEditKey').addEventListener('click', showKeyScreen);
 $('btnSaveKey').addEventListener('click', function() {
   const val = $('keyInput').value.trim();
@@ -329,9 +534,13 @@ $('btnSaveKey').addEventListener('click', function() {
 $('btnCamera').addEventListener('click', startCamera);
 $('btnStop').addEventListener('click', stopCamera);
 $('btnReset').addEventListener('click', resetUI);
-$('btnManual').addEventListener('click', () => handleCode($('manualInput').value));
-$('manualInput').addEventListener('keydown', e => { if(e.key==='Enter') handleCode($('manualInput').value); });
+$('btnManual').addEventListener('click', handleManual);
+$('btnPhotoSearch').addEventListener('click', handlePhotoSearch);
+$('manualInput').addEventListener('keydown', e => { if(e.key==='Enter') $('brandInput').focus(); });
+$('brandInput').addEventListener('keydown', e => { if(e.key==='Enter') $('productInput').focus(); });
+$('productInput').addEventListener('keydown', e => { if(e.key==='Enter') handleManual(); });
 
+// ── Start ──────────────────────────────────────────────────────────────────
 if (getKey()) { showMainUI(); } else { showKeyScreen(); }
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(()=>{}); }
 </script>
